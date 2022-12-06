@@ -21,7 +21,7 @@ As described above, make sure you are working on a development branch. When you 
 
 - When making changes to datasets or files versioned by DVC: run `dvc commit` to update the DVC cache and `dvc push` to sync the cache with the remote storage. Then run `git add .`, `git commit -m "<description of changes>"`, `and git push`
 - When making changes to code: run `git add .`, `git commit -m "<description of changes>"`, `and git push`.
--- The first time you push to your development branch, you'll need to run `git push --set-upstream origin`.
+- - The first time you push to your development branch, you'll need to run `git push --set-upstream origin`.
 
 ## Known issues
 - Still need to create a DVC pipeline
