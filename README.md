@@ -15,7 +15,9 @@ To run this project you should do the following:
 1. Use `dvc pull` to pull the data from the remote storage. You may need to authenticate in your browser. There's a lot of data, so this may take a while.
 1. Run the modules with `python data_processing.py` (or equivalent for other modules)
 
-When you complete your changes, and in-between to keep track of versions, you should run the following code to store your version
+
+## How to contribute
+As described above, make sure you are working on a development branch. When you complete your changes, and in-between to keep track of versions, you should run the following code to store your changes:
 
 - When making changes to datasets or files versioned by DVC: run `dvc commit` to update the DVC cache and `dvc push` to sync the cache with the remote storage. Then run `git add .`, `git commit -m "<description of changes>"`, `and git push`
 - When making changes to code: run `git add .`, `git commit -m "<description of changes>"`, `and git push`.
