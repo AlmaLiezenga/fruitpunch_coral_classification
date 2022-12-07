@@ -11,6 +11,8 @@ dir_output = 'data/clean/'
 #open annotations file --> here you should put the directory to your sample annotations file 
 annotations = pd.read_csv(f'{dir_input}Annotations.csv')
 
+annotations = annotations.loc[annotations['region']=='IND_CHA']
+
 #check full size to be able to track progress 
 total_size = len(annotations.index)
 
@@ -37,8 +39,10 @@ for i, r in annotations.iterrows():
     qid = r['quadratid']
     im = Image.open(f'{dir_input}{region}/{qid}.jpg')
     
+    x = r['x']
+    y = r['y']
     #get the coordinates of the sample 
-    subim = create_patch(im, r['x'], r['y'])
+    subim = create_patch(im, x, y)
     
     #save the sample
     subim.save(f"data/clean/{region}/{qid}_{x}_{y}.jpg")
