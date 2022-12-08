@@ -1,4 +1,4 @@
-# Bootcamp Fruitpunch AI 2022: To Challenge Coral Classification.
+# Bootcamp Fruitpunch AI 2022: Toy Challenge Coral Classification
 This is the code for the toy challenge Coral Classification for the Fruitpunch AI bootcamp 2022.
 
 This project uses [DVC](dvc.org) for data versioning. The data itself are stored on a Google Drive remote.
