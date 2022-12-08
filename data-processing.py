@@ -9,9 +9,7 @@ dir_input = 'data/input/'
 dir_output = 'data/clean/'
 
 #open annotations file --> here you should put the directory to your sample annotations file 
-annotations = pd.read_csv(f'{dir_input}Annotations.csv')
-
-annotations = annotations.loc[annotations['region']=='IND_CHA']
+annotations = pd.read_csv(f'{dir_output}/sampled_annotations.csv')
 
 #check full size to be able to track progress 
 total_size = len(annotations.index)
@@ -45,7 +43,7 @@ for i, r in annotations.iterrows():
     subim = create_patch(im, x, y)
     
     #save the sample
-    subim.save(f"data/clean/{region}/{qid}_{x}_{y}.jpg")
+    subim.save(f"{dir_output}{region}/{qid}_{x}_{y}.jpg")
     print(f'I have just saved the patch {x}, {y} for image {qid} from {region}')
     
     #print progress
