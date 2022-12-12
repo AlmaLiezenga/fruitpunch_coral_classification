@@ -17,6 +17,9 @@ from keras.preprocessing.image import ImageDataGenerator
 import numpy as np 
 import os
 
+from sklearn.metrics import classification_report, confusion_matrix
+from functions import create_plots, plot_confusion_matrix
+
 batch_size = 128
 num_classes = 6
 epochs = 10
@@ -91,11 +94,11 @@ model.compile(loss='categorical_crossentropy',
               metrics=['accuracy'])
 
 #%%
-model.fit(x_train, y_train,
-         batch_size=batch_size,
-         epochs=epochs,
-         verbose=1,
-         validation_data=(x_test, y_test))
+history = model.fit(x_train, y_train,
+                    batch_size=batch_size,
+                    epochs=epochs,
+                    verbose=1,
+                    validation_data=(x_test, y_test))
 
 # save model
 if not os.path.isdir(save_dir):
@@ -109,3 +112,27 @@ print('Saved trained model at %s ' % model_path)
 score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
+
+#%% Plots
+class_names = ['Algae', 'Hard Coral', 'Soft Coral', 'Other Invertebrates', 'Other']
+def plot_conf_matrix(test):
+    if not test: 
+        Y_pred = model.predict(x_train,verbose=2)
+        y_pred = np.argmax(Y_pred,axis=1)
+        for ix in range(6):
+            print (ix, confusion_matrix(np.argmax(y_train,axis=1), y_pred)[ix].sum())
+        print (confusion_matrix(np.argmax(y_train,axis=1), y_pred))    
+        plot_confusion_matrix(confusion_matrix(np.argmax(y_train,axis=1), y_pred), classes=class_names)
+    else:
+        
+        Y_pred = model.predict(x_test,verbose=2)
+        y_pred = np.argmax(Y_pred,axis=1)
+        for ix in range(6):
+            print (ix, confusion_matrix(np.argmax(y_test,axis=1), y_pred)[ix].sum())
+        print (confusion_matrix(np.argmax(y_test,axis=1), y_pred))    
+        plot_confusion_matrix(confusion_matrix(np.argmax(y_test,axis=1), y_pred), classes=class_names)
+#%%
+
+plot_conf_matrix(True)
+#%%
+create_plots(history)
