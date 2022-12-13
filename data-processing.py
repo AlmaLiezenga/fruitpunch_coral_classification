@@ -43,9 +43,11 @@ for i, r in annotations.iterrows():
     subim = create_patch(im, x, y)
     
     #save the sample
-    subim.save(f"{dir_output}{region}/{qid}_{x}_{y}.jpg")
+    subim.save(f"{dir_output}per_region/{region}/{qid}_{x}_{y}.jpg")
     print(f'I have just saved the patch {x}, {y} for image {qid} from {region}')
     
     #print progress
     progress = (i / total_size) * 100
     print(f'I am now at {progress} % of the annotations')
+
+ 
