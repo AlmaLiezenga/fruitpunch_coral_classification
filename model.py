@@ -4,7 +4,7 @@
 
 Trains a simple convnet
 """
-
+#%% Load modules
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
@@ -16,24 +16,52 @@ from keras.preprocessing.image import ImageDataGenerator
 
 import numpy as np 
 import os
+import pandas as pd
 
 from sklearn.metrics import classification_report, confusion_matrix
 from functions import create_plots, plot_confusion_matrix
 
+#%% values
 batch_size = 128
 num_classes = 6
-epochs = 10
+epochs = 1
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'coral_reef_cnn.h5'
 
-#%% the data, split between train and test sets
-image = 
-label = 
-x_train = image[]
-x_test = image[]
+img_rows, img_cols = 100, 100
 
-y_train_vector = label[]
-y_test_vector = label[]
+path = 'C:/Users/eric_/Documents/GitHub/fruitpunch_coral_classification/data/clean/'
+img_path = path + 'on-func/'
+
+#%% Load data
+df_all = pd.read_csv(path + "split_annotations.csv")
+
+df_all['img_path'] =  img_path + df_all['group'] + '/' + df_all['func_group'] + '/' + df_all['region'] + '_' + str(df_all['quadratid']) + '_' + str(df_all['y']) + '_' + str(df_all['x']) + '.jpg'
+#print(df_all.shape)
+
+df_train = df_all[df_all['group'] == 'train']
+df_test = df_all[df_all['group'] == 'test']
+df_valid = df_all[df_all['group'] == 'valid']
+print(df_train.head(), df_train.shape)
+print(df_test.shape)
+print(df_valid.shape)
+#print(df_test[['group']])
+
+#%% the data, split between train and test sets
+x_train = df_train['img_path']
+x_test = df_test['img_path']
+
+y_train_vector = df_train['func_group']
+y_test_vector = df_test['func_group']
+
+if K.image_data_format() == 'channels_first':
+    x_train = x_train.reshape(x_train.shape[0], 3, img_rows, img_cols)
+    x_test = x_test.reshape(x_test.shape[0], 3, img_rows, img_cols)
+    input_shape = (3, img_rows, img_cols)
+else:
+    x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 3)
+    x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 3)
+    input_shape = (img_rows, img_cols, 3)
 
 #%%
 x_train = x_train.astype('float32')
