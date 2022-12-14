@@ -1,13 +1,10 @@
 import matplotlib.pyplot as plt
-import numpy as np 
-import itertools
-from sklearn.metrics import classification_report, confusion_matrix
 
 def create_plots(history):
     fig = plt.figure(figsize=(5,10))
     ax = fig.add_subplot(*[2,1,1])
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
     ax.set_title('accuracy of CNN')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')

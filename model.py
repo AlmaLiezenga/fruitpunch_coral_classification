@@ -5,6 +5,7 @@
 Trains a simple convnet
 """
 #%% Load modules
+import tensorflow as tf
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
@@ -16,15 +17,16 @@ from functions import create_plots
 
 print(K._get_available_gpus())
 
-#%% values
+#%% values and paths
 batch_size = 128
 num_classes = 5
-epochs = 10
+epochs = 1
+
+# path: save model
 save_dir = os.path.join(os.getcwd(), 'saved_models')
 model_name = 'coral_reef_cnn.h5'
 
-# path
-print(os.getcwd())
+# path for inputs
 path = os.getcwd() + '/data/clean/split/on-func/'
 train_folder = path + 'train'
 test_folder = path + 'test'
@@ -37,8 +39,7 @@ train_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    batch_size=32,
-    image_size=(100, 100),
+    image_size=(100, 100)
 )
 
 test_ds = keras.utils.image_dataset_from_directory(
@@ -47,8 +48,7 @@ test_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    batch_size=32,
-    image_size=(100, 100),
+    image_size=(100, 100)
 )
 
 val_ds = keras.utils.image_dataset_from_directory(
@@ -57,9 +57,11 @@ val_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    batch_size=32,
-    image_size=(100, 100),
+    image_size=(100, 100)
 )
+
+class_names = train_ds.class_names
+print(class_names)
 
 #%% model arch
 def cnn_model():
@@ -90,8 +92,10 @@ def cnn_model():
     model.add(Dense(512))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
+
     model.add(Dense(num_classes))
     model.add(Activation('softmax'))
+
     return model
 
 #%% build model
@@ -99,19 +103,18 @@ model = cnn_model()
 model.summary()
 
 #%% optimizer
-opt = keras.optimizers.Adam()
+opt = keras.optimizers.Adam(learning_rate=0.0001)
 
 # compile
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
               metrics=['accuracy'])
 
-#%% Let's train the model
+#%% Let's train the model batch_size=batch_size, 
 history = model.fit(train_ds,
-                    batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
-                    validation_data=val_ds)
+                    validation_data=(val_ds))
 
 #%% save model
 if not os.path.isdir(save_dir):
