@@ -21,7 +21,7 @@ print(K._get_available_gpus())
 #%% inputs
 batch_size = 32
 num_classes = 5
-epochs = 10
+epochs = 15
 
 # path: save model
 save_dir = os.path.join(os.getcwd(), 'saved_models')
@@ -40,8 +40,13 @@ train_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    image_size=(100, 100)
+    image_size=(100, 100),
+    batch_size = batch_size,
+    shuffle=True
 )
+train_ds_unbatch = train_ds.unbatch()
+train_images = list(train_ds_unbatch.map(lambda x, y: x))
+train_labels = list(train_ds_unbatch.map(lambda x, y: y))
 
 test_ds = keras.utils.image_dataset_from_directory(
     test_folder,
@@ -49,8 +54,13 @@ test_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    image_size=(100, 100)
+    image_size=(100, 100),
+    batch_size = batch_size,
+    shuffle=True
 )
+test_ds_unbatch = test_ds.unbatch()
+test_images = list(test_ds_unbatch.map(lambda x, y: x))
+test_labels = list(test_ds_unbatch.map(lambda x, y: y))
 
 val_ds = keras.utils.image_dataset_from_directory(
     val_folder,
@@ -58,8 +68,13 @@ val_ds = keras.utils.image_dataset_from_directory(
     label_mode='categorical',
     class_names=None,
     color_mode='rgb',
-    image_size=(100, 100)
+    image_size=(100, 100),
+    batch_size = batch_size,
+    shuffle=True
 )
+val_ds_unbatch = val_ds.unbatch()
+val_images = list(val_ds_unbatch.map(lambda x, y: x))
+val_labels = list(val_ds_unbatch.map(lambda x, y: y))
 
 class_names = train_ds.class_names
 print(class_names)
@@ -92,7 +107,7 @@ def cnn_model():
     model.add(Flatten())
     model.add(Dense(512))
     model.add(Activation('relu'))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.35))
 
     model.add(Dense(num_classes))
     model.add(Activation('softmax'))
@@ -119,9 +134,11 @@ model.compile(loss='categorical_crossentropy',
 
 #%% Let's train the model 
 history = model.fit(train_ds,
+                    batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
-                    validation_data=(val_ds))
+                    validation_data=(val_ds),
+                    shuffle=True)
 
 #%% save model
 if not os.path.isdir(save_dir):
