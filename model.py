@@ -13,14 +13,15 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
  
 import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 from functions import create_plots
 
 print(K._get_available_gpus())
 
-#%% values and paths
-batch_size = 128
+#%% inputs
+batch_size = 32
 num_classes = 5
-epochs = 1
+epochs = 10
 
 # path: save model
 save_dir = os.path.join(os.getcwd(), 'saved_models')
@@ -91,7 +92,7 @@ def cnn_model():
     model.add(Flatten())
     model.add(Dense(512))
     model.add(Activation('relu'))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.25))
 
     model.add(Dense(num_classes))
     model.add(Activation('softmax'))
@@ -102,15 +103,21 @@ def cnn_model():
 model = cnn_model()
 model.summary()
 
-#%% optimizer
+#%% optimizer, metrics and compile
 opt = keras.optimizers.Adam(learning_rate=0.0001)
+
+# metrics
+metrics = ['accuracy',
+           keras.metrics.Precision(name='precision'),
+           keras.metrics.Recall(name='recall')
+           ]
 
 # compile
 model.compile(loss='categorical_crossentropy',
               optimizer=opt,
-              metrics=['accuracy'])
+              metrics=metrics)
 
-#%% Let's train the model batch_size=batch_size, 
+#%% Let's train the model 
 history = model.fit(train_ds,
                     epochs=epochs,
                     verbose=1,
@@ -124,8 +131,11 @@ model_path = os.path.join(save_dir, model_name)
 model.save(model_path)
 print('Saved trained model at %s ' % model_path)
 
+print(history.history)
+
 #%% evaluate model
-score = model.evaluate(test_ds, verbose=0)
+score = model.evaluate(test_ds, verbose=1)
+print(score)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
