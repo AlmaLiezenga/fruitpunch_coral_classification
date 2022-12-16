@@ -5,23 +5,23 @@
 Trains a simple convnet
 """
 #%% Load modules
-import tensorflow as tf
 import keras
 from keras.models import Sequential
+from keras.layers import Rescaling
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
  
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-from functions import create_plots
+import matplotlib.pyplot as plt
 
 print(K._get_available_gpus())
 
 #%% inputs
 batch_size = 32
 num_classes = 5
-epochs = 15
+epochs = 20
 
 # path: save model
 save_dir = os.path.join(os.getcwd(), 'saved_models')
@@ -34,6 +34,11 @@ test_folder = path + 'test'
 val_folder = path + 'valid'
 
 #%% Load data, split between train, test and valid sets
+
+# normalization layer -> rescaling rgb img in range [0,1]
+normalization_layer = Rescaling(1./255)
+
+# train dataset
 train_ds = keras.utils.image_dataset_from_directory(
     train_folder,
     labels='inferred',
@@ -44,10 +49,9 @@ train_ds = keras.utils.image_dataset_from_directory(
     batch_size = batch_size,
     shuffle=True
 )
-train_ds_unbatch = train_ds.unbatch()
-train_images = list(train_ds_unbatch.map(lambda x, y: x))
-train_labels = list(train_ds_unbatch.map(lambda x, y: y))
+train_ds_norm = train_ds.map(lambda x, y: (normalization_layer(x), y))
 
+# test dataset
 test_ds = keras.utils.image_dataset_from_directory(
     test_folder,
     labels='inferred',
@@ -58,10 +62,9 @@ test_ds = keras.utils.image_dataset_from_directory(
     batch_size = batch_size,
     shuffle=True
 )
-test_ds_unbatch = test_ds.unbatch()
-test_images = list(test_ds_unbatch.map(lambda x, y: x))
-test_labels = list(test_ds_unbatch.map(lambda x, y: y))
+test_ds_norm = test_ds.map(lambda x, y: (normalization_layer(x), y))
 
+# val dataset
 val_ds = keras.utils.image_dataset_from_directory(
     val_folder,
     labels='inferred',
@@ -72,9 +75,7 @@ val_ds = keras.utils.image_dataset_from_directory(
     batch_size = batch_size,
     shuffle=True
 )
-val_ds_unbatch = val_ds.unbatch()
-val_images = list(val_ds_unbatch.map(lambda x, y: x))
-val_labels = list(val_ds_unbatch.map(lambda x, y: y))
+val_ds_norm = val_ds.map(lambda x, y: (normalization_layer(x), y))
 
 class_names = train_ds.class_names
 print(class_names)
@@ -88,22 +89,22 @@ def cnn_model():
     model.add(Conv2D(32, (3, 3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
+    model.add(Dropout(0.2))
     
     model.add(Conv2D(64, (3, 3), padding='same'))
     model.add(Activation('relu'))
     model.add(Conv2D(64, (3, 3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))       
+    model.add(Dropout(0.2))       
     
     model.add(Conv2D(128, (3, 3), padding='same'))
     model.add(Activation('relu'))
     model.add(Conv2D(128, (3, 3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25)) 
-    
+    model.add(Dropout(0.2))
+
     model.add(Flatten())
     model.add(Dense(512))
     model.add(Activation('relu'))
@@ -133,11 +134,11 @@ model.compile(loss='categorical_crossentropy',
               metrics=metrics)
 
 #%% Let's train the model 
-history = model.fit(train_ds,
+history = model.fit(train_ds_norm,
                     batch_size=batch_size,
                     epochs=epochs,
                     verbose=1,
-                    validation_data=(val_ds),
+                    validation_data=(test_ds_norm),
                     shuffle=True)
 
 #%% save model
@@ -148,13 +149,30 @@ model_path = os.path.join(save_dir, model_name)
 model.save(model_path)
 print('Saved trained model at %s ' % model_path)
 
-print(history.history)
+#print(history.history)
 
 #%% evaluate model
-score = model.evaluate(test_ds, verbose=1)
+score = model.evaluate(val_ds_norm, verbose=1)
 print(score)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
 #%% Plots
-create_plots(history)
+fig = plt.figure(figsize=(5,10))
+ax = fig.add_subplot(*[2,1,1])
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+ax.set_title('accuracy of CNN')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'val'], loc='upper left')
+
+ax = fig.add_subplot(*[2,1,2])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('loss of CNN')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'val'], loc='upper left')
+plt.savefig('loss.png')
+plt.show()
