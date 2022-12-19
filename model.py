@@ -11,6 +11,7 @@ from keras.layers import Rescaling
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Conv2D, MaxPooling2D
 from keras import backend as K
+from keras.utils.vis_utils import plot_model
  
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -118,6 +119,7 @@ def cnn_model():
 #%% build model
 model = cnn_model()
 model.summary()
+plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
 #%% optimizer, metrics and compile
 opt = keras.optimizers.Adam(learning_rate=0.0001)
