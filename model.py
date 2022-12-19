@@ -17,6 +17,10 @@ import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import matplotlib.pyplot as plt
 
+# visualize model
+import visualkeras
+from PIL import ImageFont
+
 print(K._get_available_gpus())
 
 #%% inputs
@@ -119,7 +123,11 @@ def cnn_model():
 #%% build model
 model = cnn_model()
 model.summary()
-plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+# plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+
+# visualize the model
+font = ImageFont.truetype("arial.ttf", 12)
+visualkeras.layered_view(model, legend=True, font=font, spacing=10)
 
 #%% optimizer, metrics and compile
 opt = keras.optimizers.Adam(learning_rate=0.0001)
