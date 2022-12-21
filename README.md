@@ -18,7 +18,8 @@ To run this project you should do the following:
 ## What the scripts do
 
 - `data-sampling.py` takes the annotations file and checks if the images associated with the annotations actually exist. Those that exist are added to a new dataframe `existing_annotations` and saved as a `.csv` in the `data/clean` directory. A random sample with 2000 samples from each of the 5 coral types is then created from these `existing_annotations` and stored as `sample_annotations` and saved as a `.csv` in the `data/clean` directory.
-- `data-processing.py` takes the `sample_annotations` and iterates over the rows, for each annotation it applies a function that takes as input an image and the point locations corresponding with that image. The function returns cropped patches for each point of 100x100 pixels with the point in the center. These images are written to the `data/clean` directory and stored in the appropriate folders per region.
+- `data-processing.py` takes the `sampled_annotations` and iterates over the rows, for each annotation it applies a function that takes as input an image and the point locations corresponding with that image. The function returns cropped patches for each point of 100x100 pixels with the point in the center. These images are written to the `data/clean` directory and stored in the appropriate folders per region.
+- `data-split.py` takes the `sampled_annotations` and splits the data into training, testing and validation groups. It then iterates over all annotations and puts the subimage belonging to that annotation into the correct folder for training. 
 
 ## How to contribute
 As described above, make sure you are working on a development branch. When you complete your changes, and in-between to keep track of versions, you should run the following code to store your changes:
